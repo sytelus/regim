@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3b038ba3-898c-4e39-bc2a-51d7a9f8ab9a}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>mnist\mnist_main.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|ContinuumAnalytics|Anaconda36-64</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="mnist\mnist_main.py" />
+    <Compile Include="mnist\mnist_mlp_model.py" />
+    <Compile Include="mnist\mnist_official_main.py" />
+    <Compile Include="mnist\mnist_official_model.py" />
+    <Compile Include="regim\config.py" />
+    <Compile Include="regim\data_utils.py" />
+    <Compile Include="regim\debug_probe.py" />
+    <Compile Include="regim\event.py" />
+    <Compile Include="regim\metrics.py" />
+    <Compile Include="regim\pipeline.py" />
+    <Compile Include="regim\train_test.py" />
+    <Compile Include="regim\utils.py" />
+    <Compile Include="regim\__init__.py" />
+    <Compile Include="setup.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="regim.egg-info\dependency_links.txt" />
+    <Content Include="regim.egg-info\requires.txt" />
+    <Content Include="regim.egg-info\SOURCES.txt" />
+    <Content Include="regim.egg-info\top_level.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="mnist" />
+    <Folder Include="regim" />
+    <Folder Include="regim.egg-info" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda36-64" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

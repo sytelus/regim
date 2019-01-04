@@ -1,5 +1,4 @@
-import add_parent_path
-from pipeline import *
+from regim import *
 from mnist_official_model import MnistOfficialModel
 from mnist_mlp_model import MnistMlpModel
 import torch.nn
