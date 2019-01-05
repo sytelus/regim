@@ -1,6 +1,7 @@
 from tensorboardX import SummaryWriter
 import torch.nn as nn
 from torchvision import utils as tvutils
+import longview as lv
 
 class DebugProbe:
     class LogSettings:
@@ -18,6 +19,9 @@ class DebugProbe:
         self.metrics = metrics
         self.model = model
         
+        self.lv = lv.WatchServer()
+        self.lv.log_globals(m=self.models, t=self.metrics)
+
         callbacks.before_start.subscribe(self.on_before_start)
         callbacks.after_epoch.subscribe(self.on_after_epoch)
         callbacks.after_batch.subscribe(self.on_after_batch)
@@ -39,6 +43,9 @@ class DebugProbe:
             img = tvutils.make_grid(incorrect)
             self.log_writer.add_image("False Pred", img, self.metrics.metrics['batch_count'])
 
+        self.lv.log_event("batch", i=input, lbl=label, o=output, l=loss)
+
+
     def on_after_epoch(self, *args,**kwargs):
         epoch = self.metrics.metrics['epoch_count']
         loss = self.metrics.metrics['loss_epoch']
@@ -55,6 +62,8 @@ class DebugProbe:
                     self.log_writer.add_histogram(name + "/" + "weight", m.weight, epoch)
                     self.log_writer.add_histogram(name + "/" + "bias", m.bias, epoch)           
             self.log_settings.param_histo_next_epoch += self.log_settings.param_histo_freq
+
+        self.lv.end_event("batch")
 
         print("[{}] Epoch: {}, loss: {:.4f}, accuracy: {:.4f}, Time: {:.2f}".format(self.run_name, epoch, 
             loss, acuracy, self.metrics.metrics['epoch_time']))

@@ -2,7 +2,6 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 import torch.optim as optim
-
 from .event import Event
 
 class TrainTest:
@@ -59,6 +58,8 @@ class TrainTest:
             self.optimizer.zero_grad()
             output = self.model(input)
             loss = self.loss_module(output, label) #default reduction is averaging loss over each sample
+            
+
             loss.backward()
             self.optimizer.step()
 
