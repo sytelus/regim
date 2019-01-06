@@ -6,7 +6,7 @@ import torch
 import math
 import numpy as np
 import random
-import rolling
+#import rolling
 
 def main():
     config = Config.from_args()
@@ -98,7 +98,7 @@ def find_lr():
                 #    print("Elapsed: ", elapsed)
                 #    last_time = getTime()
             n=len(logs)
-            print(m, n, list(rolling.Max(logs, n)), list(rolling.Mean(logs, n)), list(rolling.Median(logs, n)), list(rolling.Min(logs, n)))
+            #print(m, n, list(rolling.Max(logs, n)), list(rolling.Mean(logs, n)), list(rolling.Median(logs, n)), list(rolling.Min(logs, n)))
 
 if __name__ == '__main__':
     main()

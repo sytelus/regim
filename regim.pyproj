@@ -25,10 +25,16 @@
     <Compile Include="mnist\mnist_official_model.py" />
     <Compile Include="regim\config.py" />
     <Compile Include="regim\data_utils.py" />
-    <Compile Include="regim\debug_probe.py" />
+    <Compile Include="regim\longview_probe.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="regim\probe.py" />
     <Compile Include="regim\event.py" />
     <Compile Include="regim\metrics.py" />
     <Compile Include="regim\pipeline.py" />
+    <Compile Include="regim\tensorboard_probe.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="regim\train_test.py" />
     <Compile Include="regim\utils.py" />
     <Compile Include="regim\__init__.py" />
