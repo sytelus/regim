@@ -6,9 +6,9 @@ from .probe import *
 
 class TensorboardProbe(Probe):
     def __init__(self, exp_name, run_name, epoch_config, model, 
-            callbacks, metrics, log_settings = LogSettings(), log_dir='d:/tlogs/'):
+            callbacks, metrics, log_settings = Probe.LogSettings(), log_dir='d:/tlogs/'):
         super(TensorboardProbe, self).__init__(exp_name, run_name, epoch_config, model, 
-            callbacks, log_dir, metrics)
+            callbacks, metrics, log_settings)
         self.log_writer = SummaryWriter(log_dir + exp_name + '/' + run_name)
 
     def on_after_batch(self, train_test, input, label, output, loss):
@@ -27,7 +27,7 @@ class TensorboardProbe(Probe):
             self.log_writer.add_image("False Pred", img, self.metrics.metrics['batch_count'])
 
     def on_after_epoch(self, test_train, dataset):
-        super(TensorboardProbe, self).on_after_batch(*args, **kwargs)
+        super(TensorboardProbe, self).on_after_epoch(test_train, dataset)
 
         epoch = self.metrics.metrics['epoch_count']
         loss = self.metrics.metrics['loss_epoch']
