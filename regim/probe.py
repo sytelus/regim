@@ -25,13 +25,13 @@ class Probe:
 
     def on_after_batch(self, train_test, input, label, output, loss):
         print("[{}] Batch: {}, loss: {:.4f}, accuracy: {:.4f}, Time: {:.2f}".format(self.run_name, 
-            self.metrics.metrics['batch_count'], loss, self.metrics.metrics.get('accuracy_batch', -1), 
-            self.metrics.metrics['batch_time']))
+            self.metrics.vals.batch_count, loss, self.metrics.metrics.get('batch_accuracy', -1), 
+            self.metrics.vals.batch_time))
 
     def on_after_epoch(self, test_train, dataset):
-        epoch = self.metrics.metrics['epoch_count']
-        loss = self.metrics.metrics['loss_epoch']
-        accuracy = self.metrics.metrics.get('accuracy_epoch', -1)
+        epoch = self.metrics.vals.epoch_count
+        loss = self.metrics.vals.epoch_loss
+        accuracy = self.metrics.metrics.get('epoch_accuracy', -1)
 
         print("[{}] Epoch: {}, loss: {:.4f}, accuracy: {:.4f}, Time: {:.2f}".format(self.run_name, epoch, 
-            loss, accuracy, self.metrics.metrics['epoch_time']))
+            loss, accuracy, self.metrics.vals.epoch_time))
