@@ -50,7 +50,7 @@ class TrainTest:
 
         self.model.train()
 
-        self.train_callbacks.before_epoch.notify(self, train_loader.dataset)
+        self.train_callbacks.before_epoch.notify(self, train_loader)
 
         for input, label in train_loader:
             self.train_callbacks.before_batch.notify(self, input, label)
@@ -70,14 +70,14 @@ class TrainTest:
 
             self.train_callbacks.after_batch.notify(self, input, label, output, loss.item())
 
-        self.train_callbacks.after_epoch.notify(self, train_loader.dataset)
+        self.train_callbacks.after_epoch.notify(self, train_loader)
 
     def test_epoch(self, test_loader):
         if self.train_device != self.test_device:
             self.model.to(self.test_device)
         self.model.eval()
 
-        self.test_callbacks.before_epoch.notify(self, test_loader.dataset)
+        self.test_callbacks.before_epoch.notify(self, test_loader)
 
         with torch.no_grad():
             for input, label in test_loader:
@@ -87,7 +87,7 @@ class TrainTest:
                 loss = self.loss_module(output, label)
                 self.test_callbacks.after_batch.notify(self, input, label, output, loss.item())
                 
-        self.test_callbacks.after_epoch.notify(self, test_loader.dataset)
+        self.test_callbacks.after_epoch.notify(self, test_loader)
 
     def train_model(self, epochs, train_loader, test_loader):
         self.train_callbacks.before_start.notify(self, epochs, train_loader)

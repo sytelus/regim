@@ -11,8 +11,9 @@ class LongviewProbe(Probe):
 
     def on_after_batch(self, train_test, input, label, output, loss):
         super(LongviewProbe, self).on_after_batch(train_test, input, label, output, loss)
-        self.lv.log_event("batch", input=input, label=label, output=output, loss=loss)
+        self.lv.log_event("batch", x_f=lambda e, *_:e.metrics.epochf,
+            input=input, label=label, output=output, loss=loss)
 
-    def on_after_epoch(self, test_train, dataset):
-        super(LongviewProbe, self).on_after_epoch(test_train, dataset)
+    def on_after_epoch(self, test_train, loader):
+        super(LongviewProbe, self).on_after_epoch(test_train, loader)
         self.lv.end_event("batch")

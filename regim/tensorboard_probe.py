@@ -15,7 +15,7 @@ class TensorboardProbe(Probe):
         super(TensorboardProbe, self).on_after_batch(train_test, input, label, output, loss)
 
         # dump model diagram on first batch
-        if self.log_settings.model_graph and self.metrics.stats.batch_count == 1:
+        if self.log_settings.model_graph and self.metrics.stats.batch_index == 1:
             self.log_writer.add_graph(self.model, input, verbose = True)
 
         # log false predictions
@@ -24,12 +24,12 @@ class TensorboardProbe(Probe):
             pairs = zip(input, pred.eq(label.view_as(pred)))
             incorrect =list( img for img, is_correct in pairs if not is_correct )
             img = tvutils.make_grid(incorrect)
-            self.log_writer.add_image("False Pred", img, self.metrics.stats.batch_count)
+            self.log_writer.add_image("False Pred", img, self.metrics.stats.batch_index)
 
-    def on_after_epoch(self, test_train, dataset):
-        super(TensorboardProbe, self).on_after_epoch(test_train, dataset)
+    def on_after_epoch(self, test_train, loader):
+        super(TensorboardProbe, self).on_after_epoch(test_train, loader)
 
-        epoch = self.metrics.stats.epoch_count
+        epoch = self.metrics.stats.epoch_index
         loss = self.metrics.stats.epoch_loss
         accuracy = self.metrics.stats.epoch_accuracy
 
