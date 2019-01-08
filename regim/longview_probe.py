@@ -2,14 +2,11 @@ from .probe import *
 import longview as lv
 
 class LongviewProbe(Probe):
-
-    _lv = None
-
     def __init__(self, exp_name, run_name, epoch_config, model, 
             callbacks, metrics, log_settings = Probe.LogSettings()):
         super(LongviewProbe, self).__init__(exp_name, run_name, epoch_config, model, 
             callbacks, metrics, log_settings)
-        self.lv = LongviewProbe._lv = LongviewProbe._lv or lv.WatchServer()
+        self.lv = lv.WatchServer()
         self.lv.log_globals(model=self.model, metrics=metrics.stats)
 
     def on_after_batch(self, train_test, input, label, output, loss):
