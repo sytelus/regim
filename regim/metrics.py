@@ -43,7 +43,7 @@ class Metrics:
         self.stats.epochf = self.stats.epoch_index + \
             (float(self.stats.batch_index) / self.stats.batch_count)
 
-    def on_after_batch(self, test_train, input, label, output, loss):
+    def on_after_batch(self, test_train, input, label, output, loss, loss_all):
         self.stats.batch_time = timeit.default_timer() - self.epoch_start_time
         self.stats.loss_sum += loss * len(input)
         self.stats.batch_loss = loss
@@ -63,8 +63,8 @@ class ClassificationMetrics(Metrics):
         super(ClassificationMetrics, self).on_before_epoch(train_test, loader)
         self.stats.correct_sum = 0
 
-    def on_after_batch(self, test_train, input, label, output, loss):
-        super(ClassificationMetrics, self).on_after_batch(test_train, input, label, output, loss)
+    def on_after_batch(self, test_train, input, label, output, loss, loss_all):
+        super(ClassificationMetrics, self).on_after_batch(test_train, input, label, output, loss, loss_all)
         pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
         batch_correct = pred.eq(label.view_as(pred)).sum().item()
         self.stats.correct_sum += batch_correct

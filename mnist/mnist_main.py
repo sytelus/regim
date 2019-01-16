@@ -24,7 +24,7 @@ def main():
 
     pipeline = Pipeline(config)
     pipeline.run(model, train_loader, test_loader, task_type=Pipeline.TaskType.classification, 
-        loss_module=torch.nn.NLLLoss(), optimizer='sgd')
+        loss_module=torch.nn.NLLLoss(reduction='none'), optimizer='sgd')
 
 def find_lr():
     config = Config.from_args(no_cuda_train=True, no_cuda_test=True)

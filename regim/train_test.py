@@ -38,7 +38,7 @@ class TrainTest:
             model.apply(initializer)
 
         self.optimizer = optimizer or optim.SGD(model.parameters(), config.train_config.lr, config.train_config.momentum)
-        self.loss_module = loss_module or torch.nn.NLLLoss()
+        self.loss_module = loss_module or torch.nn.NLLLoss(reduction='none')
 
         if self.train_device == self.test_device:
             self.model.to(self.train_device)
@@ -57,9 +57,14 @@ class TrainTest:
             input, label = input.to(self.train_device), label.to(self.train_device)
             self.optimizer.zero_grad()
             output = self.model(input)
-            loss = self.loss_module(output, label) #default reduction is averaging loss over each sample
-            
-
+            # For NLLLoss: output is log probability of each class, label is class ID
+            #default reduction is averaging loss over each sample
+            loss = loss_all = self.loss_module(output, label) 
+            if len(loss_all.shape) != 0:
+                loss = loss_all.mean()
+            else:
+                loss_all = torch.Tensor(label.shape)
+                loss_all.fill_(loss.item())
             loss.backward()
             self.optimizer.step()
 
@@ -68,7 +73,7 @@ class TrainTest:
             #    output = self.model(input)
             #self.model.train()
 
-            self.train_callbacks.after_batch.notify(self, input, label, output, loss.item())
+            self.train_callbacks.after_batch.notify(self, input, label, output, loss.item(), loss_all)
 
         self.train_callbacks.after_epoch.notify(self, train_loader)
 
@@ -84,8 +89,13 @@ class TrainTest:
                 self.test_callbacks.before_batch.notify(self, input, label)
                 input, label = input.to(self.test_device), label.to(self.test_device)
                 output = self.model(input)
-                loss = self.loss_module(output, label)
-                self.test_callbacks.after_batch.notify(self, input, label, output, loss.item())
+                loss = loss_all = self.loss_module(output, label)
+                if len(loss_all.shape) != 0:
+                    loss = loss_all.mean()
+                else:
+                    loss_all = torch.Tensor(label.shape)
+                    loss_all.fill_(loss.item())
+                self.test_callbacks.after_batch.notify(self, input, label, output, loss.item(), loss_all)
                 
         self.test_callbacks.after_epoch.notify(self, test_loader)
 
