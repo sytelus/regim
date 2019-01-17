@@ -92,9 +92,6 @@ class TrainTest:
                 loss = loss_all = self.loss_module(output, label)
                 if len(loss_all.shape) != 0:
                     loss = loss_all.mean()
-                else:
-                    loss_all = torch.Tensor(label.shape)
-                    loss_all.fill_(loss.item())
                 self.test_callbacks.after_batch.notify(self, input, label, output, loss.item(), loss_all)
                 
         self.test_callbacks.after_epoch.notify(self, test_loader)
