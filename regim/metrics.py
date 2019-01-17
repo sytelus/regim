@@ -52,6 +52,13 @@ class Metrics:
         self.stats.epoch_time = timeit.default_timer() - self.epoch_start_time
         self.stats.epoch_loss = self.stats.loss_sum / len(loader.dataset)
 
+    def get_after_batch_summary(self):
+        return "Batch: {}, loss: {:.4f}, Time: {:.2f}".format( \
+            self.stats.epochf, self.stats.batch_loss, self.stats.batch_time)
+    def get_after_epoch_summary(self):
+        return "Epoch: {}, loss: {:.4f}, Time: {:.2f}".format( \
+            self.stats.epoch_index, self.stats.epoch_loss, self.stats.epoch_time)
+
 class ClassificationMetrics(Metrics):
     def __init__(self, *args,**kwargs):
         super(ClassificationMetrics, self).__init__(*args,**kwargs)
@@ -73,6 +80,15 @@ class ClassificationMetrics(Metrics):
     def on_after_epoch(self, test_train, loader):
         super(ClassificationMetrics, self).on_after_epoch(test_train, loader)
         self.stats.epoch_accuracy = self.stats.correct_sum / len(loader.dataset)
+
+    def get_after_batch_summary(self):
+        s = super(ClassificationMetrics, self).get_after_batch_summary()
+        return "{}, accuracy: {:.4f}".format( \
+            s, self.stats.batch_accuracy)
+    def get_after_epoch_summary(self):
+        s = super(ClassificationMetrics, self).get_after_epoch_summary()
+        return "{}, accuracy: {:.4f}".format( \
+            s, self.stats.epoch_accuracy)
 
 
         

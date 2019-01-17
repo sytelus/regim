@@ -9,6 +9,8 @@ Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "longview", "..\longview\lon
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "longview_test", "..\longview\longview_test\longview_test.pyproj", "{9A7FE67E-93F0-42B5-B58F-77320FC639E4}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ProjectDLC", "..\ProjectDLC\ProjectDLC.pyproj", "{BEB0A6EE-1E75-4F90-8E13-58D80BEAB586}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,8 @@ Global
 		{CC8ABC7F-EDE1-4E13-B6B7-0041A5EC66A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A7FE67E-93F0-42B5-B58F-77320FC639E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9A7FE67E-93F0-42B5-B58F-77320FC639E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB0A6EE-1E75-4F90-8E13-58D80BEAB586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB0A6EE-1E75-4F90-8E13-58D80BEAB586}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
