@@ -17,7 +17,11 @@ class TrainTest:
 
     def get_optimizer(self, name, model, config):
         if name=='sgd':
-            return optim.SGD(model.parameters(), config.train_config.lr, config.train_config.momentum)
+            return optim.SGD(model.parameters(), config.train_config.lr, 
+                config.train_config.momentum, weight_decay=config.train_config.weight_decay)
+        elif name=='adam':
+            return optim.Adam(model.parameters(), config.train_config.lr, 
+                weight_decay=config.train_config.weight_decay)
         else:
             raise ValueError('Optimizer named {} is not supported'.format(name))
 
@@ -62,6 +66,7 @@ class TrainTest:
             loss = loss_all = self.loss_module(output, label) 
             if len(loss_all.shape) != 0:
                 loss = loss_all.mean()
+                #loss = loss_all.sum()
             else:
                 loss_all = torch.Tensor(label.shape)
                 loss_all.fill_(loss.item())
