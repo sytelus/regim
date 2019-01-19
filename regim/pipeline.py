@@ -14,10 +14,29 @@ class Pipeline:
     def __init__(self, config):
         self.config = config
 
-    def run(self, model, train_loader, test_loader, task_type, 
-                 loss_module, optimizer, initializer=None):
+
+    def find_lr(self, model, train_loader, task_type, 
+                 loss_module, optimizer, initializer=None, 
+                 start=1E-8, stop=10, steps=100):
 
         train_test = TrainTest(model, self.config, optimizer, loss_module, initializer)
+
+        if task_type == Pipeline.TaskType.classification:
+            train_metrics = ClassificationMetrics(train_test.train_callbacks)
+        elif task_type == Pipeline.TaskType.regression:
+            train_metrics = Metrics(train_test.train_callbacks)
+        else:
+            raise NotImplementedError()
+
+        train_probe = LongviewProbe('mnist_official_pipeline', 'train', self.config.train_config, 
+                                 model, train_test.train_callbacks, train_metrics)
+
+        train_test.find_lr(train_loader, start, stop, steps)
+
+    def run(self, model, train_loader, test_loader, task_type, 
+                 loss_module, optimizer, initializer=None, scheduler=None):
+
+        train_test = TrainTest(model, self.config, optimizer, loss_module, initializer, scheduler)
 
         if task_type == Pipeline.TaskType.classification:
             train_metrics = ClassificationMetrics(train_test.train_callbacks)

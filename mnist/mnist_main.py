@@ -9,7 +9,7 @@ import random
 #import rolling
 
 def main():
-    config = Config.from_args()
+    config = Config.from_args(momentum=0.0, learning_rate=0.1)
 
     use_mlp = True
 
@@ -23,6 +23,10 @@ def main():
     train_loader, test_loader = DataUtils.get_dataloaders(config, train_ds, test_ds)
 
     pipeline = Pipeline(config)
+
+    #pipeline.find_lr(model, train_loader, task_type=Pipeline.TaskType.classification, 
+    #    loss_module=torch.nn.NLLLoss(reduction='none'), optimizer='sgd', stop=2)
+
     pipeline.run(model, train_loader, test_loader, task_type=Pipeline.TaskType.classification, 
         loss_module=torch.nn.NLLLoss(reduction='none'), optimizer='sgd')
 
