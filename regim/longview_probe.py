@@ -10,6 +10,7 @@ class LongviewProbe(Probe):
         self.metrics = metrics
         self.lv.log_globals(model=model, metrics=metrics.stats)
 
+        #TODO manage client server connections better
         #lv.wait_key("Press any key to continue...")
 
     def on_after_batch(self, train_test, input, label, output, loss, loss_all):

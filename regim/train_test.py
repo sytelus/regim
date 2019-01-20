@@ -26,9 +26,10 @@ class TrainTest:
         lr = lr or config.train_config.lr
         weight_decay=weight_decay or config.train_config.weight_decay
 
-        param_lr = []
-        for i, p in enumerate(reversed(list(model.parameters()))):
-            param_lr.append({'params': p, 'lr': lr * 1.0 ** i})
+        param_lr = model.parameters()
+        #TODO exp layer rates
+        #for i, p in enumerate(reversed(list(model.parameters()))):
+        #    param_lr.append({'params': p, 'lr': lr * 1.0 ** i})
         if name=='sgd':
             return optim.SGD(param_lr, lr, 
                 config.train_config.momentum, weight_decay=weight_decay)
