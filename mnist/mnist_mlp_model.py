@@ -12,10 +12,10 @@ class MnistMlpModel(nn.Module):
 
     def forward(self, input_):
         h1 = F.relu(self.fc0(input_))
-        h1 = F.dropout(h1, p=0.5, training=self.training)  # drop rate 0.25, keep rate 0.75
-        h2 = F.relu(self.fc1(h1))
-        h2 = F.dropout(h2, p=0.5, training=self.training)
-        h3 = self.fc2(h2)
+        h1_d = F.dropout(h1, p=0.5, training=self.training)  # drop rate 0.25, keep rate 0.75
+        h2 = F.relu(self.fc1(h1_d))
+        h2_d = F.dropout(h2, p=0.5, training=self.training)
+        h3 = self.fc2(h2_d)
         h4 = F.log_softmax(h3, dim=1)
         return h4
 
