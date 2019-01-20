@@ -25,6 +25,7 @@
     <Compile Include="mnist\mnist_official_model.py" />
     <Compile Include="regim\config.py" />
     <Compile Include="regim\data_utils.py" />
+    <Compile Include="regim\grad_rat_sched.py" />
     <Compile Include="regim\longview_probe.py">
       <SubType>Code</SubType>
     </Compile>

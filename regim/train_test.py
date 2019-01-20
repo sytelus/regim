@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 from .event import Event
+from .grad_rat_sched import GradientRatioScheduler
 
 class TrainTest:
     class Callbacks:
@@ -17,8 +18,8 @@ class TrainTest:
             self.after_epoch = Event()
 
     def get_scheduler(self, name, optimizer):
-        if name=='layer_exp':
-            raise NotImplementedError()
+        if name=='grad_rat':
+            return GradientRatioScheduler(optimizer)
         else:
             raise ValueError('Scheduler named {} is not supported'.format(name))
             
@@ -26,15 +27,17 @@ class TrainTest:
         lr = lr or config.train_config.lr
         weight_decay=weight_decay or config.train_config.weight_decay
 
-        param_lr = [] #model.parameters()
         #TODO exp layer rates
-        for i, p in enumerate(reversed(list(model.parameters()))):
-            param_lr.append({'params': p, 'lr': lr})
+        self.param_lr.clear()
+        #TODO recurse?
+        for i, m in enumerate(reversed(list(model.children()))):
+            for p in m.parameters():
+                self.param_lr.append({'params': p, 'lr': lr, 'm_i':i})
         if name=='sgd':
-            return optim.SGD(param_lr, lr, 
+            return optim.SGD(self.param_lr, lr, 
                 config.train_config.momentum, weight_decay=weight_decay)
         elif name=='adam':
-            return optim.Adam(param_lr, lr, weight_decay=weight_decay)
+            return optim.Adam(self.param_lr, lr, weight_decay=weight_decay)
         else:
             raise ValueError('Optimizer named {} is not supported'.format(name))
 
@@ -45,6 +48,7 @@ class TrainTest:
         self.config = config
         self.train_callbacks = TrainTest.Callbacks()
         self.test_callbacks = TrainTest.Callbacks()
+        self.param_lr = [] #model.parameters()
         self.scheduler_name = scheduler if isinstance(scheduler, str) else None
         self.optimizer_name = optimizer if isinstance(optimizer, str) else None
 
@@ -55,6 +59,9 @@ class TrainTest:
             optimizer = self.get_optimizer(self.optimizer_name, model, config)
         else:
             raise NotImplementedError()
+        #TODO not consistent?
+        self.optimizer = optimizer or optim.SGD(model.parameters(), \
+            config.train_config.lr, config.train_config.momentum)
 
         if self.scheduler_name is not None:
             self.scheduler = self.get_scheduler(self.scheduler_name, optimizer)
@@ -64,8 +71,6 @@ class TrainTest:
         if initializer is not None:
             model.apply(initializer)
 
-        self.optimizer = optimizer or optim.SGD(model.parameters(), \
-            config.train_config.lr, config.train_config.momentum)
         self.loss_module = loss_module or torch.nn.NLLLoss(reduction='none')
 
         if self.train_device == self.test_device:
@@ -105,8 +110,12 @@ class TrainTest:
             loss.backward()
             optimizer.step()
 
+            #TODO need to remove this - its confusing
             if batch_sched is not None:
                 batch_sched.step()
+            if self.scheduler is not None:
+                #TODO check if method exist
+                self.scheduler.on_after_batch()
 
             #self.model.eval() # disable layers like dropout
             #with torch.no_grad():
