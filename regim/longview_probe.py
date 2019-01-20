@@ -10,7 +10,7 @@ class LongviewProbe(Probe):
         self.metrics = metrics
         self.lv.log_globals(model=model, metrics=metrics.stats)
 
-        lv.wait_key("Press any key to continue...")
+        #lv.wait_key("Press any key to continue...")
 
     def on_after_batch(self, train_test, input, label, output, loss, loss_all):
         super(LongviewProbe, self).on_after_batch(train_test, input, label, output, loss, loss_all)

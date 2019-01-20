@@ -33,7 +33,7 @@ class Config:
                             help='input batch size for training')
         parser.add_argument('--test-batch-size', type=int, default=test_batch_size, metavar='N',
                             help='input batch size for testing')
-        parser.add_argument('--epochs', type=int, default=100, metavar='N',
+        parser.add_argument('--epochs', type=int, default=25, metavar='N',
                             help='number of epochs to train')
         parser.add_argument('--lr', type=float, default=learning_rate, metavar='LR', #0.01
                             help='learning rate')

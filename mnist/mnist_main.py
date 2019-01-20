@@ -9,7 +9,7 @@ import random
 #import rolling
 
 def main():
-    config = Config.from_args(momentum=0.0, learning_rate=0.1)
+    config = Config.from_args(momentum=0.0, learning_rate=0.01)
 
     use_mlp = True
 
