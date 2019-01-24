@@ -17,22 +17,26 @@ class TrainTest:
             self.after_batch = Event()
             self.after_epoch = Event()
 
-    def get_scheduler(self, name, optimizer):
-        if name=='grad_rat':
+
+    def get_optimizer_params(self, model, scheduler_name, optimizer_name):
+        if scheduler_name is None:
+            return model.parameters()
+        elif scheduler_name=='grad_rat':
+            return GradientRatioScheduler.get_params_base_lr(model, lr)
+        else:
+            raise ValueError('Scheduler named {} is not supported'.format(scheduler_name))
+    def get_scheduler(self, scheduler_name, optimizer):
+        if scheduler_name is None:
+            return None
+        elif scheduler_name=='grad_rat':
             return GradientRatioScheduler(optimizer)
         else:
-            raise ValueError('Scheduler named {} is not supported'.format(name))
+            raise ValueError('Scheduler named {} is not supported'.format(scheduler_name))
             
     def get_optimizer(self, name, model, config, lr=None, weight_decay=None):
         lr = lr or config.train_config.lr
         weight_decay=weight_decay or config.train_config.weight_decay
 
-        #TODO exp layer rates
-        self.param_lr.clear()
-        #TODO recurse?
-        for i, m in enumerate(reversed(list(model.children()))):
-            for p in m.parameters():
-                self.param_lr.append({'params': p, 'lr': lr, 'm_i':i})
         if name=='sgd':
             return optim.SGD(self.param_lr, lr, 
                 config.train_config.momentum, weight_decay=weight_decay)
@@ -48,25 +52,22 @@ class TrainTest:
         self.config = config
         self.train_callbacks = TrainTest.Callbacks()
         self.test_callbacks = TrainTest.Callbacks()
-        self.param_lr = [] #model.parameters()
+        self.param_lr = []
         self.scheduler_name = scheduler if isinstance(scheduler, str) else None
         self.optimizer_name = optimizer if isinstance(optimizer, str) else None
 
         self.train_device = config.train_config.device
         self.test_device = config.test_config.device
+        
+        self.param_lr = self.get_optimizer_params(self.model, self.scheduler_name, 
+            self.optimizer_name)
+        optimizer = self.get_optimizer(self.optimizer_name, model, config)
 
-        if self.optimizer_name is not None:
-            optimizer = self.get_optimizer(self.optimizer_name, model, config)
-        else:
-            raise NotImplementedError()
         #TODO not consistent?
         self.optimizer = optimizer or optim.SGD(model.parameters(), \
             config.train_config.lr, config.train_config.momentum)
 
-        if self.scheduler_name is not None:
-            self.scheduler = self.get_scheduler(self.scheduler_name, optimizer)
-        else:
-            self.scheduler = None
+        self.scheduler= self.get_scheduler(self.scheduler_name, optimizer)
 
         if initializer is not None:
             model.apply(initializer)
@@ -110,7 +111,7 @@ class TrainTest:
             loss.backward()
             optimizer.step()
 
-            #TODO need to remove this - its confusing
+            #TODO need to remove this - this is becoming confusing
             if batch_sched is not None:
                 batch_sched.step()
             if self.scheduler is not None:
@@ -171,7 +172,9 @@ class TrainTest:
         if self.optimizer_name is not None:
             optimizer = self.get_optimizer(self.optimizer_name, self.model, 
                 self.config, lr=1)
-        #TODO else?
+        else:
+            raise NotImplementedError()
+
         scheduler = lr_scheduler.LambdaLR(optimizer, exp_ann)
 
         self.train_callbacks.before_start.notify(self, None, train_loader)
