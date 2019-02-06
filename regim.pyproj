@@ -38,6 +38,9 @@
     </Compile>
     <Compile Include="regim\train_test.py" />
     <Compile Include="regim\utils.py" />
+    <Compile Include="regim\weighted_mse_loss.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="regim\__init__.py" />
     <Compile Include="setup.py" />
   </ItemGroup>

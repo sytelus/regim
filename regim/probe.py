@@ -23,7 +23,7 @@ class Probe:
         print("[{}] CUDA: {}, Batch Size: {}, Data Size: {}, Batches: {}".format(self.run_name, 
             self.epoch_config.use_cuda, self.epoch_config.batch_size, len(loader.dataset), len(loader)))
 
-    def on_after_batch(self, train_test, input, label, output, loss, loss_all):
+    def on_after_batch(self, train_test, row, output, loss, loss_all):
         # print("[{}] {}".format(self.run_name, self.metrics.get_after_batch_summary()))
         pass
 

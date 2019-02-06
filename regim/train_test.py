@@ -5,6 +5,7 @@ import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 from .event import Event
 from .grad_rat_sched import GradientRatioScheduler
+from .weighted_mse_loss import WeightedMseLoss
 
 class TrainTest:
     class Callbacks:
@@ -67,7 +68,7 @@ class TrainTest:
         self.optimizer = optimizer or optim.SGD(model.parameters(), \
             config.train_config.lr, config.train_config.momentum)
 
-        self.scheduler= self.get_scheduler(self.scheduler_name, optimizer)
+        self.scheduler = self.get_scheduler(self.scheduler_name, optimizer)
 
         if initializer is not None:
             model.apply(initializer)
@@ -76,6 +77,21 @@ class TrainTest:
 
         if self.train_device == self.test_device:
             self.model.to(self.train_device)
+
+    @staticmethod
+    def row2tuple(row):
+        if len(row) == 2:
+            input, label = row
+            input_weight = None
+        elif len(row) == 3:
+            input, label, input_weight = row
+        else:
+            raise ValueError("Row in train_loader was of shape size {} instead of 2 or 3".format(len(row)))
+        return input, label, input_weight
+
+    @staticmethod
+    def to_device(device, *kargs):
+        return tuple(arg.to(device) if arg is not None else None for arg in kargs)
 
     def train_epoch(self, train_loader, optimizer=None, batch_sched=None, max_batches=None):
         optimizer = optimizer or self.optimizer
@@ -90,18 +106,24 @@ class TrainTest:
         self.train_callbacks.before_epoch.notify(self, train_loader)
         
         batch_index = -1
-        for input, label in train_loader:
+        for row in train_loader:
+            input, label, input_weight = TrainTest.row2tuple(row)
             batch_index += 1
             if max_batches is not None and batch_index >= max_batches:
                 break;
 
-            self.train_callbacks.before_batch.notify(self, input, label)
-            input, label = input.to(self.train_device), label.to(self.train_device)
+            self.train_callbacks.before_batch.notify(self, (input, label, input_weight))
+            input, label, input_weight = TrainTest.to_device(self.train_device, 
+                input, label, input_weight)
             optimizer.zero_grad()
             output = self.model(input)
             # For NLLLoss: output is log probability of each class, label is class ID
             #default reduction is averaging loss over each sample
-            loss = loss_all = self.loss_module(output, label) 
+            if isinstance(self.loss_module, WeightedMseLoss):
+                loss = loss_all = self.loss_module(output, label, input_weight) 
+            else:
+                loss = loss_all = self.loss_module(output, label) 
+
             if len(loss_all.shape) != 0:
                 loss = loss_all.mean()
                 #loss = loss_all.sum()
@@ -123,7 +145,7 @@ class TrainTest:
             #    output = self.model(input)
             #self.model.train()
 
-            self.train_callbacks.after_batch.notify(self, input, label, output, 
+            self.train_callbacks.after_batch.notify(self, (input, label, input_weight), output, 
                 loss.item(), loss_all)
 
         self.train_callbacks.after_epoch.notify(self, train_loader)
@@ -141,14 +163,21 @@ class TrainTest:
         self.test_callbacks.before_epoch.notify(self, test_loader)
 
         with torch.no_grad():
-            for input, label in test_loader:
-                self.test_callbacks.before_batch.notify(self, input, label)
-                input, label = input.to(self.test_device), label.to(self.test_device)
+            for row in test_loader:
+                input, label, input_weight = TrainTest.row2tuple(row)
+                self.test_callbacks.before_batch.notify(self, (input, label, input_weight))
+                input, label, input_weight = TrainTest.to_device(self.test_device, 
+                    input, label, input_weight)
+
                 output = self.model(input)
-                loss = loss_all = self.loss_module(output, label)
+                if isinstance(self.loss_module, WeightedMseLoss):
+                    loss = loss_all = self.loss_module(output, label, input_weight) 
+                else:
+                    loss = loss_all = self.loss_module(output, label) 
                 if len(loss_all.shape) != 0:
                     loss = loss_all.mean()
-                self.test_callbacks.after_batch.notify(self, input, label, output, loss.item(), loss_all)
+                self.test_callbacks.after_batch.notify(self, (input, label, input_weight), 
+                    output, loss.item(), loss_all)
                 
         self.test_callbacks.after_epoch.notify(self, test_loader)
 

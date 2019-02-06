@@ -11,8 +11,10 @@ class TensorboardProbe(Probe):
             callbacks, metrics, log_settings)
         self.log_writer = SummaryWriter(log_dir + exp_name + '/' + run_name)
 
-    def on_after_batch(self, train_test, input, label, output, loss, loss_all):
-        super(TensorboardProbe, self).on_after_batch(train_test, input, label, output, loss, loss_all)
+    def on_after_batch(self, train_test, row, output, loss, loss_all):
+        super(TensorboardProbe, self).on_after_batch(train_test, row, output, loss, loss_all)
+
+        input, label, *_ = row
 
         # dump model diagram on first batch
         if self.log_settings.model_graph and self.metrics.stats.batch_index == 1:

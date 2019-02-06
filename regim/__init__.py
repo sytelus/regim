@@ -5,4 +5,5 @@ from .utils import *
 from .pipeline import *
 from .config import *
 from .event import *
+from .weighted_mse_loss import *
 
