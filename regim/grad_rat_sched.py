@@ -22,7 +22,7 @@ class GradientRatioScheduler(lr_scheduler._LRScheduler):
             #TODO remove dep on m_i?
             if pg['m_i'] != m_i: # new module started
                 # save last moddule's avg
-                if last_g is None:
+                if last_g is None and this_g_count > 0:
                     last_g = this_g_sum / this_g_count
                 this_g_sum, this_g_count = 0, 0
                 m_i = pg['m_i']
@@ -31,14 +31,17 @@ class GradientRatioScheduler(lr_scheduler._LRScheduler):
             # accumulate for current module
             #TODO - worry about requires_grad
             for p in pg['params']:
-                this_g_sum += p.grad.abs().sum().item()
-                this_g_count += p.grad.numel()
+                if p.requires_grad and p.grad is not None and p.grad.numel() > 0:
+                    this_g_sum += p.grad.abs().sum().item()
+                    this_g_count += p.grad.numel()
             
             # if this is the last one in module, update LR
-            if i_start is not None and (i == len(pgs)-1 or pgs[i+1]['m_i'] != m_i):
+            if last_g is not None and i_start is not None and this_g_count >0 and \
+                (i == len(pgs)-1 or pgs[i+1]['m_i'] != m_i):
+
                 rat = last_g / (this_g_sum / this_g_count)
-                if rat < 0.1 or rat > 10 or math.isnan(rat):
-                    print(rat, m_i, i)
+                #if rat < 0.1 or rat > 10 or math.isnan(rat):
+                #    print(rat, m_i, i)
                 for j in range(i, i_start-1, -1):
                     self.lr_factors[j] = \
                         self.smooth*self.lr_factors[j] + (1-self.smooth)*rat
