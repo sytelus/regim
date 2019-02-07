@@ -13,8 +13,9 @@ class LongviewProbe(Probe):
         #TODO manage client server connections better
         #lv.wait_key("Press any key to continue...")
 
-    def on_after_batch(self, train_test, input, label, output, loss, loss_all):
-        super(LongviewProbe, self).on_after_batch(train_test, input, label, output, loss, loss_all)
+    def on_after_batch(self, train_test, row, output, loss, loss_all):
+        super(LongviewProbe, self).on_after_batch(train_test, row, output, loss, loss_all)
+        input, label, *_ = row
         self.lv.log_event("batch", x=self.metrics.stats.epochf,
             input=input, label=label, output=output, loss=loss, loss_all=loss_all, 
             tt=train_test)

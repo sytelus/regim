@@ -5,6 +5,7 @@ import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 from .event import Event
 from .grad_rat_sched import GradientRatioScheduler
+from .weighted_mse_loss import WeightedMseLoss
 
 class TrainTest:
     class Callbacks:
@@ -17,22 +18,26 @@ class TrainTest:
             self.after_batch = Event()
             self.after_epoch = Event()
 
-    def get_scheduler(self, name, optimizer):
-        if name=='grad_rat':
+
+    def get_optimizer_params(self, model, scheduler_name, optimizer_name):
+        if scheduler_name is None:
+            return model.parameters()
+        elif scheduler_name=='grad_rat':
+            return GradientRatioScheduler.get_params_base_lr(model, lr)
+        else:
+            raise ValueError('Scheduler named {} is not supported'.format(scheduler_name))
+    def get_scheduler(self, scheduler_name, optimizer):
+        if scheduler_name is None:
+            return None
+        elif scheduler_name=='grad_rat':
             return GradientRatioScheduler(optimizer)
         else:
-            raise ValueError('Scheduler named {} is not supported'.format(name))
+            raise ValueError('Scheduler named {} is not supported'.format(scheduler_name))
             
     def get_optimizer(self, name, model, config, lr=None, weight_decay=None):
         lr = lr or config.train_config.lr
         weight_decay=weight_decay or config.train_config.weight_decay
 
-        #TODO exp layer rates
-        self.param_lr.clear()
-        #TODO recurse?
-        for i, m in enumerate(reversed(list(model.children()))):
-            for p in m.parameters():
-                self.param_lr.append({'params': p, 'lr': lr, 'm_i':i})
         if name=='sgd':
             return optim.SGD(self.param_lr, lr, 
                 config.train_config.momentum, weight_decay=weight_decay)
@@ -48,25 +53,22 @@ class TrainTest:
         self.config = config
         self.train_callbacks = TrainTest.Callbacks()
         self.test_callbacks = TrainTest.Callbacks()
-        self.param_lr = [] #model.parameters()
+        self.param_lr = []
         self.scheduler_name = scheduler if isinstance(scheduler, str) else None
         self.optimizer_name = optimizer if isinstance(optimizer, str) else None
 
         self.train_device = config.train_config.device
         self.test_device = config.test_config.device
+        
+        self.param_lr = self.get_optimizer_params(self.model, self.scheduler_name, 
+            self.optimizer_name)
+        optimizer = self.get_optimizer(self.optimizer_name, model, config)
 
-        if self.optimizer_name is not None:
-            optimizer = self.get_optimizer(self.optimizer_name, model, config)
-        else:
-            raise NotImplementedError()
         #TODO not consistent?
         self.optimizer = optimizer or optim.SGD(model.parameters(), \
             config.train_config.lr, config.train_config.momentum)
 
-        if self.scheduler_name is not None:
-            self.scheduler = self.get_scheduler(self.scheduler_name, optimizer)
-        else:
-            self.scheduler = None
+        self.scheduler = self.get_scheduler(self.scheduler_name, optimizer)
 
         if initializer is not None:
             model.apply(initializer)
@@ -75,6 +77,21 @@ class TrainTest:
 
         if self.train_device == self.test_device:
             self.model.to(self.train_device)
+
+    @staticmethod
+    def row2tuple(row):
+        if len(row) == 2:
+            input, label = row
+            input_weight = None
+        elif len(row) == 3:
+            input, label, input_weight = row
+        else:
+            raise ValueError("Row in train_loader was of shape size {} instead of 2 or 3".format(len(row)))
+        return input, label, input_weight
+
+    @staticmethod
+    def to_device(device, *kargs):
+        return tuple(arg.to(device) if arg is not None else None for arg in kargs)
 
     def train_epoch(self, train_loader, optimizer=None, batch_sched=None, max_batches=None):
         optimizer = optimizer or self.optimizer
@@ -89,18 +106,24 @@ class TrainTest:
         self.train_callbacks.before_epoch.notify(self, train_loader)
         
         batch_index = -1
-        for input, label in train_loader:
+        for row in train_loader:
+            input, label, input_weight = TrainTest.row2tuple(row)
             batch_index += 1
             if max_batches is not None and batch_index >= max_batches:
                 break;
 
-            self.train_callbacks.before_batch.notify(self, input, label)
-            input, label = input.to(self.train_device), label.to(self.train_device)
+            self.train_callbacks.before_batch.notify(self, (input, label, input_weight))
+            input, label, input_weight = TrainTest.to_device(self.train_device, 
+                input, label, input_weight)
             optimizer.zero_grad()
             output = self.model(input)
             # For NLLLoss: output is log probability of each class, label is class ID
             #default reduction is averaging loss over each sample
-            loss = loss_all = self.loss_module(output, label) 
+            if isinstance(self.loss_module, WeightedMseLoss):
+                loss = loss_all = self.loss_module(output, label, input_weight) 
+            else:
+                loss = loss_all = self.loss_module(output, label) 
+
             if len(loss_all.shape) != 0:
                 loss = loss_all.mean()
                 #loss = loss_all.sum()
@@ -110,7 +133,7 @@ class TrainTest:
             loss.backward()
             optimizer.step()
 
-            #TODO need to remove this - its confusing
+            #TODO need to remove this - this is becoming confusing
             if batch_sched is not None:
                 batch_sched.step()
             if self.scheduler is not None:
@@ -122,7 +145,7 @@ class TrainTest:
             #    output = self.model(input)
             #self.model.train()
 
-            self.train_callbacks.after_batch.notify(self, input, label, output, 
+            self.train_callbacks.after_batch.notify(self, (input, label, input_weight), output, 
                 loss.item(), loss_all)
 
         self.train_callbacks.after_epoch.notify(self, train_loader)
@@ -140,14 +163,21 @@ class TrainTest:
         self.test_callbacks.before_epoch.notify(self, test_loader)
 
         with torch.no_grad():
-            for input, label in test_loader:
-                self.test_callbacks.before_batch.notify(self, input, label)
-                input, label = input.to(self.test_device), label.to(self.test_device)
+            for row in test_loader:
+                input, label, input_weight = TrainTest.row2tuple(row)
+                self.test_callbacks.before_batch.notify(self, (input, label, input_weight))
+                input, label, input_weight = TrainTest.to_device(self.test_device, 
+                    input, label, input_weight)
+
                 output = self.model(input)
-                loss = loss_all = self.loss_module(output, label)
+                if isinstance(self.loss_module, WeightedMseLoss):
+                    loss = loss_all = self.loss_module(output, label, input_weight) 
+                else:
+                    loss = loss_all = self.loss_module(output, label) 
                 if len(loss_all.shape) != 0:
                     loss = loss_all.mean()
-                self.test_callbacks.after_batch.notify(self, input, label, output, loss.item(), loss_all)
+                self.test_callbacks.after_batch.notify(self, (input, label, input_weight), 
+                    output, loss.item(), loss_all)
                 
         self.test_callbacks.after_epoch.notify(self, test_loader)
 
@@ -171,7 +201,9 @@ class TrainTest:
         if self.optimizer_name is not None:
             optimizer = self.get_optimizer(self.optimizer_name, self.model, 
                 self.config, lr=1)
-        #TODO else?
+        else:
+            raise NotImplementedError()
+
         scheduler = lr_scheduler.LambdaLR(optimizer, exp_ann)
 
         self.train_callbacks.before_start.notify(self, None, train_loader)
