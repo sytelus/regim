@@ -9,7 +9,22 @@ import random
 #import rolling
 
 def main():
-    config = Config.from_args(momentum=0.0, learning_rate=0.01)
+
+    #Baseline: lr=0.01, momentum=0.5
+    #[train] CUDA: True, Batch Size: 64, Data Size: 60000, Batches: 938
+    #[test] CUDA: True, Batch Size: 1000, Data Size: 10000, Batches: 10
+    #[train] Epoch: 0, loss: 0.7641, Time: 37.08, accuracy: 0.7639
+    #[test] Epoch: 0, loss: 0.2806, Time: 4.76, accuracy: 0.9156
+    #[train] Epoch: 1, loss: 0.3453, Time: 36.01, accuracy: 0.8961
+    #[test] Epoch: 1, loss: 0.2004, Time: 4.44, accuracy: 0.9389
+    #[train] Epoch: 2, loss: 0.2725, Time: 42.38, accuracy: 0.9198
+    #[test] Epoch: 2, loss: 0.1649, Time: 5.25, accuracy: 0.9506
+    #[train] Epoch: 3, loss: 0.2313, Time: 40.64, accuracy: 0.9315
+    #[test] Epoch: 3, loss: 0.1408, Time: 4.69, accuracy: 0.9587
+    #[train] Epoch: 4, loss: 0.2052, Time: 37.60, accuracy: 0.9394
+    #[test] Epoch: 4, loss: 0.1238, Time: 4.93, accuracy: 0.9618
+    
+    config = Config.from_args()
 
     use_mlp = True
 

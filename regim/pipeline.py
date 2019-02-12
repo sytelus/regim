@@ -16,10 +16,11 @@ class Pipeline:
 
 
     def find_lr(self, model, train_loader, task_type, 
-                 loss_module, optimizer, initializer=None, 
+                 loss_module, optimizer_name, initializer=None, 
                  start=1E-8, stop=10, steps=100):
 
-        train_test = TrainTest(model, self.config, optimizer, loss_module, initializer)
+        train_test = TrainTest(model, self.config, loss_module, 
+                               optimizer, None, initializer, lr=1)
 
         if task_type == Pipeline.TaskType.classification:
             train_metrics = ClassificationMetrics(train_test.train_callbacks)
@@ -33,10 +34,12 @@ class Pipeline:
 
         train_test.find_lr(train_loader, start, stop, steps)
 
+
     def run(self, model, train_loader, test_loader, task_type, 
                  loss_module, optimizer, initializer=None, scheduler=None):
 
-        train_test = TrainTest(model, self.config, optimizer, loss_module, initializer, scheduler)
+        train_test = TrainTest(model, self.config, loss_module,
+                               optimizer, scheduler, initializer)
 
         if task_type == Pipeline.TaskType.classification:
             train_metrics = ClassificationMetrics(train_test.train_callbacks)
@@ -52,4 +55,4 @@ class Pipeline:
         test_probe = LongviewProbe('mnist_official_pipeline', 'test', self.config.test_config, 
                                 model, train_test.test_callbacks, test_metrics)
 
-        train_test.train_model(self.config.epochs, train_loader, test_loader)
+        train_test.fit(train_loader, test_loader)

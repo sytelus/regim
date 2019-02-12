@@ -37,17 +37,17 @@ class Metrics:
         self.stats.epochf = self.stats.epoch_index
         self.stats.batch_count = len(loader)
 
-    def on_before_batch(self, train_test, row):
+    def on_before_batch(self, train_test, batch_state):
         self.batch_start_time = timeit.default_timer()
         self.stats.batch_index += 1
         self.stats.epochf = self.stats.epoch_index + \
             (float(self.stats.batch_index) / self.stats.batch_count)
 
-    def on_after_batch(self, test_train, row, output, loss, loss_all):
-        input, *_ = row
+    def on_after_batch(self, test_train, batch_state):
         self.stats.batch_time = timeit.default_timer() - self.epoch_start_time
-        self.stats.loss_sum += loss * len(input)
-        self.stats.batch_loss = loss
+        self.stats.loss_sum += batch_state.loss_all.sum().item()
+        self.stats.batch_loss = batch_state.loss
+        self.stats.batch_loss_all = batch_state.loss_all
 
     def on_after_epoch(self, test_train, loader):
         self.stats.epoch_time = timeit.default_timer() - self.epoch_start_time
@@ -71,13 +71,13 @@ class ClassificationMetrics(Metrics):
         super(ClassificationMetrics, self).on_before_epoch(train_test, loader)
         self.stats.correct_sum = 0
 
-    def on_after_batch(self, test_train, row, output, loss, loss_all):
-        super(ClassificationMetrics, self).on_after_batch(test_train, row, output, loss, loss_all)
-        input, label, *_ = row
-        pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
-        batch_correct = pred.eq(label.view_as(pred)).sum().item()
+    def on_after_batch(self, test_train, batch_state):
+        super(ClassificationMetrics, self).on_after_batch(test_train, batch_state)
+        # get the index of the max log-probability
+        pred = batch_state.output.max(1, keepdim=True)[1]
+        batch_correct = pred.eq(batch_state.target.view_as(pred)).sum().item()
         self.stats.correct_sum += batch_correct
-        self.stats.batch_accuracy = float(batch_correct) / len(input)
+        self.stats.batch_accuracy = float(batch_correct) / len(batch_state.input)
 
     def on_after_epoch(self, test_train, loader):
         super(ClassificationMetrics, self).on_after_epoch(test_train, loader)

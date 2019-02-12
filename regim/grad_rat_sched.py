@@ -2,11 +2,12 @@ import torch.optim.lr_scheduler as lr_scheduler
 import math 
 
 class GradientRatioScheduler(lr_scheduler._LRScheduler):
-    def __init__(self, optimizer, last_epoch=-1, smooth=0, decay_factor=1):
+    def __init__(self, callbacks, optimizer, last_epoch=-1, smooth=0, decay_factor=1):
         self.lr_factors = [1 for _ in optimizer.param_groups]
         self.smooth = smooth
         self.decay_factor = decay_factor
         self.cached_lrs = None
+        callbacks.after_batch.subscribe(self.on_after_batch)
         super(GradientRatioScheduler, self).__init__(optimizer, last_epoch)
 
     def get_lr(self):
@@ -42,7 +43,7 @@ class GradientRatioScheduler(lr_scheduler._LRScheduler):
         self.decay_factor = decay_factor
         self.cached_lrs = None
 
-    def on_after_batch(self):
+    def on_after_batch(self, *kargs, **kwargs):
         this_g_sum, this_g_count = 0, 0
         last_g = None
 
@@ -112,7 +113,7 @@ class GradientRatioScheduler(lr_scheduler._LRScheduler):
             yield name, p, i
 
     @staticmethod
-    def get_params_base_lr(model, lr):
+    def get_opt_params(model, lr):
         param_lr=[]
         for name, p, i in GradientRatioScheduler.named_parameters(model):
             param_lr.append({'params': p, 'm_i':i, 'lr': lr})

@@ -58,5 +58,12 @@
   <ItemGroup>
     <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda36-64" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\longview\longview.pyproj">
+      <Name>longview</Name>
+      <Project>{cc8abc7f-ede1-4e13-b6b7-0041a5ec66a7}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

@@ -11,18 +11,16 @@ class TensorboardProbe(Probe):
             callbacks, metrics, log_settings)
         self.log_writer = SummaryWriter(log_dir + exp_name + '/' + run_name)
 
-    def on_after_batch(self, train_test, row, output, loss, loss_all):
-        super(TensorboardProbe, self).on_after_batch(train_test, row, output, loss, loss_all)
-
-        input, label, *_ = row
+    def on_after_batch(self, train_test, batch_state):
+        super(TensorboardProbe, self).on_after_batch(train_test, batch_state)
 
         # dump model diagram on first batch
         if self.log_settings.model_graph and self.metrics.stats.batch_index == 1:
-            self.log_writer.add_graph(self.model, input, verbose = True)
+            self.log_writer.add_graph(self.model, batch_state.input, verbose = True)
 
         # log false predictions
         if self.log_settings.false_preds:
-            pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
+            pred = batch_state.output.max(1, keepdim=True)[1] # get the index of the max log-probability
             pairs = zip(input, pred.eq(label.view_as(pred)))
             incorrect =list( img for img, is_correct in pairs if not is_correct )
             img = tvutils.make_grid(incorrect)
