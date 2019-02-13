@@ -8,7 +8,7 @@ import numpy as np
 import random
 #import rolling
 
-def main():
+def main(argv):
 
     #Baseline: lr=0.01, momentum=0.5
     #[train] CUDA: True, Batch Size: 64, Data Size: 60000, Batches: 938
@@ -120,4 +120,4 @@ def find_lr():
             #print(m, n, list(rolling.Max(logs, n)), list(rolling.Mean(logs, n)), list(rolling.Median(logs, n)), list(rolling.Min(logs, n)))
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main(sys.argv))

@@ -26,14 +26,14 @@ class Config:
     @staticmethod
     def from_args(train_batch_size=64, test_batch_size=1000, 
                   learning_rate=0.01, momentum=0.5, weight_decay=0,
-                  rand_seed=42,no_cuda_train=False, no_cuda_test=False):
+                  rand_seed=42,no_cuda_train=False, no_cuda_test=False, epochs=100):
 
         parser = argparse.ArgumentParser(description='PyTorch Deep Learning Pipeline')
         parser.add_argument('--batch-size', type=int, default=train_batch_size, metavar='N', #64
                             help='input batch size for training')
         parser.add_argument('--test-batch-size', type=int, default=test_batch_size, metavar='N',
                             help='input batch size for testing')
-        parser.add_argument('--epochs', type=int, default=25, metavar='N',
+        parser.add_argument('--epochs', type=int, default=epochs, metavar='N',
                             help='number of epochs to train')
         parser.add_argument('--lr', type=float, default=learning_rate, metavar='LR', #0.01
                             help='learning rate')

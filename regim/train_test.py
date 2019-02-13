@@ -97,17 +97,25 @@ class TrainTest:
         # For NLLLoss: output is log probability of each class, target is class ID
         # default reduction is averaging loss over each sample
         if isinstance(loss_module, WeightedMseLoss):
-            loss = loss_all = loss_module(output, target, tar_weight) 
+            loss_raw = loss_module(output, target, tar_weight) 
         else: # other losses with target weights not supported yet
-            loss = loss_all = loss_module(output, target) 
+            loss_raw = loss_all = loss_module(output, target) 
 
-        # if loss isn't scaler value, compute its mean
-        if len(loss_all.shape) != 0:
+        # there are 3 cases
+        # 1. loss_raw shape is () i.e. scaler (reduction='mean')
+        # 2. loss_raw shape is (batch_size,)  (reduction='none')
+        # 3. loss_raw shape is (batch_size, ...) (reduction='none' for tensor output)
+
+        if len(loss_raw.shape) > 1: # case 3
+            loss_all = loss_raw.sum(tuple(range(1, len(loss_raw.shape))))
             loss = loss_all.mean()
-            #loss = loss_all.sum()
+        elif len(loss_raw.shape) == 1:
+            loss_all = loss_raw
+            loss = loss_all.mean()
         else:
             loss_all = torch.Tensor(target.shape)
-            loss_all.fill_(loss.item())
+            loss_all.fill_(loss_raw.item())
+            loss = loss_raw
 
         return loss_all, loss
 
