@@ -24,12 +24,20 @@ class DataUtils:
             return torch.from_numpy(np.array(a))
 
     @staticmethod
-    def channel_norm(ds):
-        l = [DataUtils.ensure_tensor(data) for data, _ in ds]
-        l = torch.cat(l, dim=0) #size: [N, X, Y] or [N, C, X, Y]
-        if len(l.shape) == 3: # convert N X H X W to N X 1 X H X W
-            l = l.view(l.shape[0], 1, l.shape[1], l.shape[2])
-        l = torch.transpose(l, 0, 1).contiguous() #size: [C, N, X, Y]
+    def channel_norm(ds, channel_dim=None):
+        # collect tensors in list
+        l = [DataUtils.ensure_tensor(data) for data, *_ in ds]
+        # join back all tensors so the first dimension is count of tensors
+        l = torch.stack(l, dim=0) #size: [N, X, Y, ...] or [N, C, X, Y, ...]
+
+        if channel_dim is None:
+            # add redundant first dim
+            l = l.unsqueeze(0)
+
+        else:
+            # swap channel dimension to first
+            l = torch.transpose(l, 0, channel_dim).contiguous() #size: [C, N, X, Y, ...]
+        # collapse all except first dimension
         l = l.view(l.size(0), -1) #size: [C, N*X*Y]
         mean = torch.mean(l, dim=1) #size: [C]
         std = torch.std(l, dim=1) #size: [C]

@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3b038ba3-898c-4e39-bc2a-51d7a9f8ab9a}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>mnist\mnist_main.py</StartupFile>
+    <StartupFile>mnist\find_ds_mean_var.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,12 +19,18 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="mnist\find_ds_mean_var.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="mnist\mnist_main.py" />
     <Compile Include="mnist\mnist_mlp_model.py" />
     <Compile Include="mnist\mnist_official_main.py" />
     <Compile Include="mnist\mnist_official_model.py" />
     <Compile Include="regim\config.py" />
     <Compile Include="regim\data_utils.py" />
+    <Compile Include="regim\dl_utils.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="regim\grad_rat_sched.py" />
     <Compile Include="regim\longview_probe.py">
       <SubType>Code</SubType>
