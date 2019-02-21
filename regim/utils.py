@@ -7,6 +7,8 @@ import inspect
 import types
 import re
 
+from collections import abc
+
 from functools import wraps
 import gc
 import timeit
@@ -65,7 +67,31 @@ def list_to_2d_float_array(flst, width, height):
 def get_pfm_array(response):
     return list_to_2d_float_array(response.image_data_float, response.width, response.height)
 
-    
+def fill_like(val, seq):
+    l = len(seq)
+    if is_array_like(val) and len(val) == l:
+        return val
+    return [val] * len(seq)
+def is_array_like(obj, string_is_array=False, tuple_is_array=True):
+    result = hasattr(obj, "__len__") and hasattr(obj, '__getitem__') 
+    if result and not string_is_array and isinstance(obj, (str, abc.ByteString)):
+        result = False
+    if result and not tuple_is_array and isinstance(obj, tuple):
+        result = False
+    return result
+def is_scalar(x):
+    return x is None or np.isscalar(x)
+def is_scaler_array(x): #detects (x,y) or [x, y]
+    if is_array_like(x):
+        if len(x) > 0:
+            return len(x) if is_scalar(x[0]) else -1
+        else:
+            return 0
+    else:
+        return -1
+def is_array_of_2d_array_like(x):
+    return is_array_like(x) and (len(x) == 0 or \
+        (len(x) > 0 and is_2d_scaler_array_like(x[0])))
 def get_public_fields(obj):
     return [attr for attr in dir(obj)
                             if not (attr.startswith("_") 
@@ -90,6 +116,8 @@ def write_file(filename, bstr):
 # helper method for converting getOrientation to roll/pitch/yaw
 # https:#en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     
+def has_method(o, name):
+    return callable(getattr(o, name, None))
 def to_eularian_angles(q):
     z = q.z_val
     y = q.y_val

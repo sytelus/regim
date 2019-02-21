@@ -107,6 +107,7 @@ class TrainTest:
         # 3. loss_raw shape is (batch_size, ...) (reduction='none' for tensor output)
 
         if len(loss_raw.shape) > 1: # case 3
+            # sum over all except dim=0 i.e. get loss for each item in batch
             loss_all = loss_raw.sum(tuple(range(1, len(loss_raw.shape))))
             loss = loss_all.mean()
         elif len(loss_raw.shape) == 1:
@@ -150,10 +151,13 @@ class TrainTest:
             row = input, target, in_weight, tar_weight = TrainTest.to_device(self.train_device, row)
 
             self.optimizer.zero_grad()
-            output = self.model(input)
 
-            loss_all, loss = TrainTest.get_loss(self.loss_module, output, target, 
-                in_weight, tar_weight)
+            if utils.has_method(self.model, 'fit'):
+                output, loss_all, loss = self.model.fit(input, target)
+            else:
+                output = self.model(input)
+                loss_all, loss = TrainTest.get_loss(self.loss_module, output, target, 
+                    in_weight, tar_weight)
 
             loss.backward()
             self.optimizer.step()
