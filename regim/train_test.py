@@ -28,7 +28,7 @@ class TrainTest:
 
     @staticmethod
     def get_optimizer_params(model, scheduler):
-        if scheduler is None or not isinstance(scheduler, str):
+        if scheduler is None or not isinstance(scheduler, str) or scheduler=='step_lr':
             return model.parameters()
         elif scheduler=='grad_rat':
             return GradientRatioScheduler.get_opt_params(model, lr)
@@ -39,6 +39,8 @@ class TrainTest:
     def get_scheduler(scheduler_name, optimizer, train_callbacks):
         if scheduler_name is None:
             return None
+        elif scheduler_name=='step_lr':
+            return lr_scheduler.MultiStepLR(optimizer, gamma=0.1, milestones=[1, 10, 100])
         elif scheduler_name=='grad_rat':
             return GradientRatioScheduler(train_callbacks, optimizer)
         else:
@@ -79,7 +81,7 @@ class TrainTest:
                 lr or config.train_config.lr, config.train_config.momentum)
 
         if isinstance(scheduler, str):
-            self.scheduler = TrainTest.get_scheduler(self.scheduler_name, optimizer,
+            self.scheduler = TrainTest.get_scheduler(scheduler, self.optimizer,
                 self.train_callbacks)
         else:
             self.scheduler = scheduler
