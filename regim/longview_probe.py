@@ -8,19 +8,19 @@ class LongviewProbe(Probe):
             callbacks, metrics, log_settings)
         self.lv = lv.WatchServer()
         self.metrics = metrics
-        self.lv.log_globals(model=model, metrics=metrics.stats)
+        self.lv.set_vars(model=model, metrics=metrics.stats)
 
         #TODO manage client server connections better
         #lv.wait_key("Press any key to continue...")
 
     def on_after_batch(self, train_test, batch_state):
         super(LongviewProbe, self).on_after_batch(train_test, batch_state)
-        self.lv.log_event("batch", x=self.metrics.stats.epochf, batch=batch_state, tt=train_test)
+        self.lv.set_vars("batch", x=self.metrics.stats.epochf, batch=batch_state, tt=train_test)
 
     def on_after_epoch(self, train_test, loader):
         super(LongviewProbe, self).on_after_epoch(train_test, loader)
         self.lv.end_event("batch")
-        self.lv.log_event("epoch", tt=train_test)
+        self.lv.set_vars("epoch", tt=train_test)
 
     #TODO log end epoch
 
