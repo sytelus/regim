@@ -121,9 +121,11 @@ class DataUtils:
         kwargs_test = {'pin_memory': True} if config.test_config.use_cuda else {}
 
         train_loader = torch.utils.data.DataLoader(train_ds,
-            batch_size=config.train_config.batch_size, shuffle=True, **kwargs_train)
+            batch_size=config.train_config.batch_size, shuffle=True, **kwargs_train) \
+                if train_ds is not None else None
 
         test_loader = torch.utils.data.DataLoader(test_ds,
-            batch_size=config.test_config.batch_size, shuffle=True, **kwargs_test)
+            batch_size=config.test_config.batch_size, shuffle=True, **kwargs_test) \
+                if test_ds is not None else None
 
         return train_loader, test_loader

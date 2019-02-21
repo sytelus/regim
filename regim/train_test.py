@@ -194,10 +194,12 @@ class TrainTest:
     
                 row = input, target, in_weight, tar_weight = TrainTest.to_device(self.test_device,row)
 
-                output = self.model(input)
-                
-                loss_all, loss = TrainTest.get_loss(self.loss_module, output, target, 
-                    in_weight, tar_weight)
+                if utils.has_method(self.model, 'fit'):
+                    output, loss_all, loss = self.model.fit(input, target)
+                else:
+                    output = self.model(input)
+                    loss_all, loss = TrainTest.get_loss(self.loss_module, output, target, 
+                        in_weight, tar_weight)
 
                 batch_state = TrainTest.BatchState(row, output, loss.item(), loss_all)
                 self.test_callbacks.after_batch.notify(self, batch_state)
