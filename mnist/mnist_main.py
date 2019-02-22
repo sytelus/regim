@@ -6,7 +6,7 @@ import torch
 import math
 import numpy as np
 import random
-#import rolling
+
 
 def main(argv):
 
@@ -24,7 +24,7 @@ def main(argv):
     #[train] Epoch: 4, loss: 0.2052, Time: 37.60, accuracy: 0.9394
     #[test] Epoch: 4, loss: 0.1238, Time: 4.93, accuracy: 0.9618
     
-    config = Config.from_args()
+    config = Config.from_args(momentum=0.5)
 
     use_mlp = True
 

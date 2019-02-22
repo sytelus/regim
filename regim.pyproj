@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3b038ba3-898c-4e39-bc2a-51d7a9f8ab9a}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>mnist\mnist_main.py</StartupFile>
+    <StartupFile>fruits\fruits_main.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,6 +19,12 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="fruits\fruits_main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="fruits\vae_cnn.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="mnist\find_ds_mean_var.py">
       <SubType>Code</SubType>
     </Compile>
@@ -58,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="mnist" />
+    <Folder Include="fruits\" />
     <Folder Include="regim" />
     <Folder Include="regim.egg-info" />
   </ItemGroup>

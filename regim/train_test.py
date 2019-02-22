@@ -116,7 +116,7 @@ class TrainTest:
             loss_all = loss_raw
             loss = loss_all.mean()
         else:
-            loss_all = torch.Tensor(target.shape)
+            loss_all = torch.Tensor((target.shape[0], 1))
             loss_all.fill_(loss_raw.item())
             loss = loss_raw
 

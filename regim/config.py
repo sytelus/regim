@@ -25,7 +25,7 @@ class Config:
 
     @staticmethod
     def from_args(train_batch_size=64, test_batch_size=1000, 
-                  learning_rate=0.01, momentum=0.5, weight_decay=0,
+                  learning_rate=0.01, momentum=0.0, weight_decay=0,
                   rand_seed=42,no_cuda_train=False, no_cuda_test=False, epochs=100):
 
         parser = argparse.ArgumentParser(description='PyTorch Deep Learning Pipeline')
