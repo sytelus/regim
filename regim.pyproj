@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3b038ba3-898c-4e39-bc2a-51d7a9f8ab9a}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>fruits\fruits_main.py</StartupFile>
+    <StartupFile>mnist\mnist_main.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
