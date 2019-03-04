@@ -15,12 +15,12 @@ class GradientRatioScheduler(lr_scheduler._LRScheduler):
             self.cached_lrs = self.get_rat_mul_no_decay_lr() # self.get_rat_blended_lr() #self.get_rat_mul_lr()
         return self.cached_lrs
 
-    def blend_lr(self, lr0, factor, alpha):
-        return alpha*lr0 + (1-alpha)*(lr0*factor)
+    def blend_lr(self, lr0, factor, opacity):
+        return opacity*lr0 + (1-opacity)*(lr0*factor)
     def get_rat_blended_lr(self):
         epoch = max(self.last_epoch, 0)
-        alpha = min(epoch/20.0, 1.0)
-        return [self.blend_lr(base_lr * self.decay_factor, self.lr_factors[i], alpha) for i,base_lr in enumerate(self.base_lrs)]
+        opacity = min(epoch/20.0, 1.0)
+        return [self.blend_lr(base_lr * self.decay_factor, self.lr_factors[i], opacity) for i,base_lr in enumerate(self.base_lrs)]
 
     def get_shake_it_lr(self):
         return [8*(base_lr * self.decay_factor) if self.last_epoch > 1 and self.last_epoch % 15 == 0 else (base_lr * self.decay_factor) \
