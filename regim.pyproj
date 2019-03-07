@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3b038ba3-898c-4e39-bc2a-51d7a9f8ab9a}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>mnist\mnist_main.py</StartupFile>
+    <StartupFile>fruits\fruits_main.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -38,7 +38,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="regim\grad_rat_sched.py" />
-    <Compile Include="regim\longview_probe.py">
+    <Compile Include="regim\tensorwatch_probe.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="regim\probe.py" />
@@ -72,8 +72,8 @@
     <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda36-64" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\longview\longview.pyproj">
-      <Name>longview</Name>
+    <ProjectReference Include="..\tensorwatch\tensorwatch.pyproj">
+      <Name>tensorwatch</Name>
       <Project>{cc8abc7f-ede1-4e13-b6b7-0041a5ec66a7}</Project>
       <Private>True</Private>
     </ProjectReference>

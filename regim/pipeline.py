@@ -3,7 +3,7 @@ from torchvision import datasets, transforms
 
 from .train_test import TrainTest
 #from .probe import Probe
-from .longview_probe import *
+from .tensorwatch_probe import *
 from .metrics import Metrics, ClassificationMetrics
 
 class Pipeline:
@@ -29,7 +29,7 @@ class Pipeline:
         else:
             raise NotImplementedError()
 
-        train_probe = LongviewProbe('mnist_official_pipeline', 'train', self.config.train_config, 
+        train_probe = TensorWatchProbe('mnist_official_pipeline', 'train', self.config.train_config, 
                                  model, train_test.train_callbacks, train_metrics)
 
         train_test.find_lr(train_loader, start, stop, steps)
@@ -50,9 +50,9 @@ class Pipeline:
         else:
             raise NotImplementedError()
 
-        train_probe = LongviewProbe('mnist_official_pipeline', 'train', self.config.train_config, 
+        train_probe = TensorWatchProbe('mnist_official_pipeline', 'train', self.config.train_config, 
                                  model, train_test.train_callbacks, train_metrics)
-        test_probe = LongviewProbe('mnist_official_pipeline', 'test', self.config.test_config, 
+        test_probe = TensorWatchProbe('mnist_official_pipeline', 'test', self.config.test_config, 
                                 model, train_test.test_callbacks, test_metrics)
 
         train_test.fit(train_loader, test_loader)

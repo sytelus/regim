@@ -5,9 +5,9 @@ VisualStudioVersion = 15.0.27428.2043
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "regim", "regim.pyproj", "{3B038BA3-898C-4E39-BC2A-51D7A9F8AB9A}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "longview", "..\longview\longview.pyproj", "{CC8ABC7F-EDE1-4E13-B6B7-0041A5EC66A7}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "tensorwatch", "..\tensorwatch\tensorwatch.pyproj", "{CC8ABC7F-EDE1-4E13-B6B7-0041A5EC66A7}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "longview_test", "..\longview\longview_test\longview_test.pyproj", "{9A7FE67E-93F0-42B5-B58F-77320FC639E4}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "test", "..\tensorwatch\test\test.pyproj", "{9A7FE67E-93F0-42B5-B58F-77320FC639E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

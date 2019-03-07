@@ -20,6 +20,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ),
     install_requires=[
-          'torch', 'torchvision', 'longview', 'tensorboardX', 'numpy'
+          'torch', 'torchvision', 'tensorwatch', 'tensorboardX', 'numpy', 'tensorwatch'
     ]
 )

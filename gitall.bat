@@ -5,7 +5,7 @@ git add . -A
 git commit -m %1
 git push
 
-cd D:\GitHubSrc\longview
+cd D:\GitHubSrc\tensorwatch
 git add . -A
 git commit -m %1
 git push
