@@ -30,7 +30,7 @@ class Pipeline:
             raise NotImplementedError()
 
         train_probe = TensorWatchProbe('mnist_official_pipeline', 'train', self.config.train_config, 
-                                 model, train_test.train_callbacks, train_metrics)
+                                 model, train_test.train_callbacks, train_metrics, self.config.log_config)
 
         train_test.find_lr(train_loader, start, stop, steps)
 
@@ -51,8 +51,8 @@ class Pipeline:
             raise NotImplementedError()
 
         train_probe = TensorWatchProbe('mnist_official_pipeline', 'train', self.config.train_config, 
-                                 model, train_test.train_callbacks, train_metrics)
+                                 model, train_test.train_callbacks, train_metrics, self.config.log_config)
         test_probe = TensorWatchProbe('mnist_official_pipeline', 'test', self.config.test_config, 
-                                model, train_test.test_callbacks, test_metrics)
+                                model, train_test.test_callbacks, test_metrics, self.config.log_config)
 
         train_test.fit(train_loader, test_loader)

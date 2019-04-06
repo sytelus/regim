@@ -1,17 +1,10 @@
 
 class Probe:
-    class LogSettings:
-        model_graph = False
-        false_preds = False
-        param_histo_freq = 0
-        param_histo_next_epoch = 0
-        basic = False
-
     def __init__(self, exp_name, run_name, epoch_config, model, 
-            callbacks, metrics, log_settings = LogSettings()):
+            callbacks, metrics, log_config):
         self.epoch_config = epoch_config
         self.run_name = run_name
-        self.log_settings = log_settings
+        self.log_config = log_config
         self.metrics = metrics
         self.model = model
         

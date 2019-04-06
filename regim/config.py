@@ -15,17 +15,27 @@ class Config:
         def __init__(self, batch_size):
             super(Config.TestEpochConfig, self).__init__(batch_size)
             self.batch_size = batch_size
+    class LogConfig:
+        def __init__(self, model_graph=False, false_preds=False, param_histo_freq=0,
+                     param_histo_next_epoch=0, basic=False, debug_verbosity=-1):
+            self.model_graph = model_graph
+            self.false_preds = false_preds
+            self.param_histo_freq = param_histo_freq
+            self.param_histo_next_epoch = param_histo_next_epoch
+            self.basic = basic
+            self.debug_verbosity = debug_verbosity
 
-    def __init__(self, train_batch_size, test_batch_size):
+    def __init__(self, train_batch_size, test_batch_size, debug_verbosity):
         self.train_config = Config.TrainEpochConfig(train_batch_size)
         self.test_config = Config.TestEpochConfig(test_batch_size)
+        self.log_config = Config.LogConfig(debug_verbosity=debug_verbosity)
         self.epochs = 100
         self.seed = 1
 
 
     @staticmethod
     def from_args(train_batch_size=64, test_batch_size=1000, 
-                  learning_rate=0.01, momentum=0.0, weight_decay=0,
+                  learning_rate=0.01, momentum=0.0, weight_decay=0, debug_verbosity=None,
                   rand_seed=42,no_cuda_train=False, no_cuda_test=False, epochs=100):
 
         parser = argparse.ArgumentParser(description='PyTorch Deep Learning Pipeline')
@@ -47,10 +57,12 @@ class Config:
                             help='disables CUDA testing')
         parser.add_argument('--seed', type=int, default=rand_seed, metavar='S',
                             help='random seed (default: 42)')
+        parser.add_argument('--debug_verbosity', type=int, default=debug_verbosity, metavar='S',
+                            help='Debug Verbosity (default: -1)')
 
         args = parser.parse_args()
 
-        config = Config(args.batch_size, args.test_batch_size)
+        config = Config(args.batch_size, args.test_batch_size, debug_verbosity=args.debug_verbosity)
 
         config.train_config.use_cuda = not args.no_cuda_train and torch.cuda.is_available()
         config.train_config.device = torch.device("cuda" if config.train_config.use_cuda else "cpu")
