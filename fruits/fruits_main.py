@@ -14,7 +14,7 @@ class Image2ImageFolder(datasets.ImageFolder):
         return sample, sample
 
 def main(argv):
-    config = Config.from_args(train_batch_size=64, epochs=50, rand_seed=1, learning_rate=1e-3)
+    config = Config.from_args(train_batch_size=16, epochs=50, rand_seed=1, learning_rate=1e-3)
 
     train_root = "D:\\datasets\\fruits-360\\Training"
     val_root = "D:\\datasets\\fruits-360\\Test"
