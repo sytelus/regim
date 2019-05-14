@@ -9,7 +9,7 @@ class TensorWatchProbe(Probe):
 
         tw.utils.set_debug_verbosity(log_config.debug_verbosity)
 
-        self.tw = tw.ZmqWatcherServer(port_offset=port_offset)
+        self.tw = tw.Watcher(port_offset=port_offset)
         self.metrics = metrics
         self.tw.set_globals(model=model, metrics=metrics.stats)
 
