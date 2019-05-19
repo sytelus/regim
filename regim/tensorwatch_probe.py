@@ -3,13 +3,13 @@ import tensorwatch as tw
 
 class TensorWatchProbe(Probe):
     def __init__(self, exp_name, run_name, epoch_config, model, 
-            callbacks, metrics, log_config, port_offset):
+            callbacks, metrics, log_config, port):
         super(TensorWatchProbe, self).__init__(exp_name, run_name, epoch_config, model, 
             callbacks, metrics, log_config)
 
         tw.utils.set_debug_verbosity(log_config.debug_verbosity)
 
-        self.tw = tw.Watcher(port_offset=port_offset)
+        self.tw = tw.Watcher(port=port)
         self.metrics = metrics
         self.tw.set_globals(model=model, metrics=metrics.stats)
 
