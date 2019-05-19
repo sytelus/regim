@@ -5,6 +5,7 @@ import torch
 import math
 import numpy as np
 import random
+import torchvision.datasets as datasets
 
 class Image2ImageFolder(datasets.ImageFolder):
     def __getitem__(self, *kargs, **kwargs):
