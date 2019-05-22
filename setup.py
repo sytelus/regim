@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="regim",
-    version="0.1.0",
+    version="0.8.0",
     author="Shital Shah",
     author_email="sytelus@gmail.com",
     description="PyTorch Train Test Regiment Pipeline",
