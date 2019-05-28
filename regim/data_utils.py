@@ -57,6 +57,8 @@ class DataUtils:
             random.shuffle(ds)
 
         for data, label in ds:
+            if not isinstance(label, torch.Tensor):
+                label = torch.Tensor([label])
             c = label.item()
             class_counts[c] = class_counts.get(c, 0) + 1
             if class_counts[c] <= k:
@@ -79,7 +81,7 @@ class DataUtils:
             if not no_test:
                 test_data = test_data.numpy()
                 test_label = test_label.numpy()
-                return train_data, train_label, train_data, test_label 
+                return train_data, train_label, test_data, test_label 
             return train_data, train_label
 
         return (TensorDataset(train_data, train_label), 
