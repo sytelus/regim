@@ -15,10 +15,17 @@ class Image2ImageFolder(datasets.ImageFolder):
         return sample, sample
 
 def main(argv):
-    config = Config.from_args(train_batch_size=16, epochs=50, rand_seed=1, learning_rate=1e-3)
 
-    train_root = "D:\\datasets\\fruits-360\\Training"
-    val_root = "D:\\datasets\\fruits-360\\Test"
+    arg_parser = argparse.ArgumentParser(description='PyTorch Deep Learning Pipeline')
+    arg_parser.add_argument('--train-root', type=str, default="/datasets/fruits-360/Training",
+                        help='Directory for train dataset for fruits (default: /datasets/fruits-360/Training)')
+    arg_parser.add_argument('--test-root', type=str, default="/datasets/fruits-360/Test",
+                        help='Directory for test dataset for fruits (default: /datasets/fruits-360/Test)')
+
+    config = Config.from_args(train_batch_size=16, epochs=50, rand_seed=1, learning_rate=1e-3, arg_parser=arg_parser)
+
+    train_root = config.args.train_root
+    val_root = config.args.test_root
 
     train_loader = torch.utils.data.DataLoader(
         Image2ImageFolder(train_root, transform=transforms.ToTensor()),
